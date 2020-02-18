@@ -1,0 +1,16 @@
+[package]
+name = "tcp"
+version = "0.1.0"
+authors = ["idle <views63@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web = "2"
+actix-rt = "1"
+urlencoding  = ""
+regex = ""
+lazy_static = ""
+uuid = { version = "0.8", features = ["serde", "v4"] }
+tokio = { features = ["full"] }
