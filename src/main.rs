@@ -13,6 +13,7 @@ use std::fs::File;
 use std::io::prelude::*;
 
 use tokio::process::Command;
+use std::process::Stdio;
 
 lazy_static! {
     static ref LATEX_CODE: Regex = Regex::new(r"latex=(.+?)&scale=(\d+)").unwrap();
@@ -27,7 +28,7 @@ async fn greet(req: HttpRequest) -> HttpResponse {
 
     let templates = format!(
         "\\documentclass{{standalone}}
-\\usepackage{{ctex}}    
+\\usepackage[scheme=plain]{{ctex}}    
 \\usepackage{{amsmath,amssymb,amstext,amsfonts,upgreek}}
 \\begin{{document}}
 ${0}$
@@ -41,13 +42,15 @@ ${0}$
 
     Command::new("xelatex")
         .arg(format!("{}.tex", uuid))
+        .stdout(Stdio::null())
         .spawn()
         .expect("xelatex command failed to start")
         .await
         .expect("xelatex command failed to run");
 
     Command::new("dvisvgm")
-        .args(&["-n", "-P", format!("{}.pdf", uuid).as_str()])
+        .args(&["-n", "-P",format!("{}.pdf", uuid).as_str()])
+        .stdout(Stdio::null())
         .spawn()
         .expect("dvisvgm command failed to start")
         .await
@@ -70,6 +73,7 @@ ${0}$
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
+
     HttpServer::new(|| App::new().route("/", web::get().to(greet)))
         .bind("127.0.0.1:8000")?
         .run()
